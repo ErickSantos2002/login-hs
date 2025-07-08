@@ -13,7 +13,10 @@ app = FastAPI(
 # CORS para liberar acesso ao frontend (ajuste para os domínios corretos depois)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://datacorehs.healthsafetytech.com"],  # Altere para ["http://seufrontend.com"] em produção!
+    allow_origins=[
+        "https://datacorehs.healthsafetytech.com",
+        "http://localhost:5174"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
