@@ -7,6 +7,7 @@ from app.models.user import User
 from app.models.role import Role
 from app.utils.db import get_db
 from app.core.security import hash_password, verify_password, create_access_token
+from sqlalchemy import func
 
 router = APIRouter()
 
@@ -24,7 +25,7 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail="Default role not found in the database.")
 
     new_user = User(
-        username=user_in.username,
+        username=user_in.username.lower(),  # <-- aqui
         password_hash=hash_password(user_in.password),
         role_id=default_role.id
     )
@@ -35,15 +36,24 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login")
 def login(user_in: UserLogin, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.username == user_in.username).first()
+    from sqlalchemy import func  # garantir import
+
+    user = (
+        db.query(User)
+        .filter(func.lower(User.username) == user_in.username.lower())
+        .first()
+    )
+
     if not user or not verify_password(user_in.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password"
         )
+
     access_token = create_access_token(
         data={"sub": user.username, "user_id": user.id, "role": user.role.name}
     )
+
     return {
         "access_token": access_token,
         "token_type": "bearer",
