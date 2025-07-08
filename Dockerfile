@@ -23,4 +23,4 @@ COPY . .
 EXPOSE 9090
 
 # Comando para rodar o servidor
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9090"]
+CMD ["gunicorn", "app.main:app", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:9090", "--forwarded-allow-ips=*"]
