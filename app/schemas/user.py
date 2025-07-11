@@ -15,6 +15,7 @@ class RoleOut(BaseModel):
 class UserCreate(BaseModel):
     username: str
     password: str
+    role_name: Optional[str] = None  # Novo campo opcional
 
 class UserLogin(BaseModel):
     username: str
@@ -29,3 +30,8 @@ class UserOut(BaseModel):
     model_config = {
         "from_attributes": True
     }
+
+class UserUpdate(BaseModel):
+    username: Optional[str] = None
+    password: Optional[str] = None
+    role_name: Optional[str] = None
