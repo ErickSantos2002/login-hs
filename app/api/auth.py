@@ -36,6 +36,34 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
     db.refresh(new_user)
     return new_user
 
+
+@router.post("/login")
+def login(user_in: UserLogin, db: Session = Depends(get_db)):
+    from sqlalchemy import func  # garantir import
+
+    user = (
+        db.query(User)
+        .filter(func.lower(User.username) == user_in.username.lower())
+        .first()
+    )
+
+    if not user or not verify_password(user_in.password, user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password"
+        )
+
+    access_token = create_access_token(
+        data={"sub": user.username, "user_id": user.id, "role": user.role.name}
+    )
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "role": user.role.name,
+        "username": user.username
+    }
+
 @router.put("/users/{user_id}", response_model=UserOut)
 def update_user(user_id: int, user_in: UserUpdate, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.id == user_id).first()
