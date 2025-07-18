@@ -15,7 +15,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://datacorehs.healthsafetytech.com",
-        "http://localhost:5174"
+        "http://localhost:5174",
+        "https://scoreapi.healthsafetytech.com"
     ],
     allow_credentials=True,
     allow_methods=["*"],
