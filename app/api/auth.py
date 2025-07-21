@@ -84,3 +84,10 @@ def update_user(user_id: int, user_in: UserUpdate, db: Session = Depends(get_db)
     db.commit()
     db.refresh(user)
     return user
+
+@router.get("/users/{user_id}", response_model=UserOut)
+def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail=f"Usuário {user_id} não encontrado")
+    return user
