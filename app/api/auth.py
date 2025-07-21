@@ -61,7 +61,8 @@ def login(user_in: UserLogin, db: Session = Depends(get_db)):
         "access_token": access_token,
         "token_type": "bearer",
         "role": user.role.name,
-        "username": user.username
+        "username": user.username,
+        "user_id": user.id
     }
 
 @router.put("/users/{user_id}", response_model=UserOut)
