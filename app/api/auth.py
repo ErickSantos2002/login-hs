@@ -8,6 +8,7 @@ from app.models.role import Role
 from app.utils.db import get_db
 from app.core.security import hash_password, verify_password, create_access_token
 from sqlalchemy import func
+from app.core.security import get_current_user
 
 router = APIRouter()
 
@@ -91,3 +92,7 @@ def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=404, detail=f"Usuário {user_id} não encontrado")
     return user
+
+@router.get("/me", response_model=UserOut)
+def read_me(current_user: User = Depends(get_current_user)):
+    return current_user
