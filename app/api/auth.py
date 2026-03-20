@@ -2,7 +2,8 @@
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from app.schemas.user import UserCreate, UserLogin, UserOut, UserUpdate
+from typing import List
+from app.schemas.user import UserCreate, UserLogin, UserOut, UserUpdate, RoleOut
 from app.models.user import User
 from app.models.role import Role
 from app.utils.db import get_db
@@ -96,3 +97,35 @@ def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
 @router.get("/me", response_model=UserOut)
 def read_me(current_user: User = Depends(get_current_user)):
     return current_user
+
+@router.get("/users", response_model=List[UserOut])
+def list_users(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.role.name != "admin":
+        raise HTTPException(status_code=403, detail="Acesso restrito a administradores.")
+    return db.query(User).order_by(User.id).all()
+
+@router.delete("/users/{user_id}", status_code=204)
+def delete_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.role.name != "admin":
+        raise HTTPException(status_code=403, detail="Acesso restrito a administradores.")
+    if current_user.id == user_id:
+        raise HTTPException(status_code=400, detail="Não é possível excluir seu próprio usuário.")
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado.")
+    db.delete(user)
+    db.commit()
+
+@router.get("/roles", response_model=List[RoleOut])
+def list_roles(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    return db.query(Role).order_by(Role.id).all()

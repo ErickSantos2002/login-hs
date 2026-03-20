@@ -19,6 +19,7 @@ app.add_middleware(
         "https://healthsafetytech.com",
         "https://scoreapi.healthsafetytech.com",
         "https://healthscore.healthsafetytech.com",
+        "http://localhost:5173",
         "http://localhost:5174"
     ],
     allow_credentials=True,
